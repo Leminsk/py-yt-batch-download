@@ -16,8 +16,21 @@ def downloadMP3(video_url):
         'outtmpl': f"{output_folder}/%(title)s.mp3",
     }
 
-    with youtube_dl.YoutubeDL(options) as ydl:
-        ydl.download([video_info['webpage_url']])
+    # darn playlists
+    if("entries" in video_info):
+        for i, _ in enumerate(video_info["entries"]):
+            video = video_info["entries"][i]
+            try:
+                youtube_dl.YoutubeDL(options).download([video['webpage_url']])        
+            except Exception as e:
+                print("--------------------------------------------------")
+                print("Error with URL: ", video['webpage_url'])
+                print(e)
+                print("--------------------------------------------------")
+                error_urls.append([type(e).__name__, video['webpage_url']])
+
+    else:
+        youtube_dl.YoutubeDL(options).download([video_info['webpage_url']])
 
 
 def isValidURLList(error_url_list):
@@ -37,6 +50,7 @@ with open(file_name) as file:
             
             try:
                 downloadMP3(video_url)
+
 
             except Exception as e:
                 print("--------------------------------------------------")
